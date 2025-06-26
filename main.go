@@ -18,10 +18,24 @@ func main() {
 	go longRunningTask(ctx, result)
 
 	select {
-	case <-result:
-		fmt.Printf("Таск завершён")
+	case res := <-result:
+		fmt.Printf("Таск завершён", res)
 	case <-ctx.Done():
 		fmt.Printf("Таск выполняется слишком долго: %v", ctx.Err())
+	}
+
+	// Пример 2
+	ch := make(chan string, 1)
+	go func() {
+		time.Sleep(2 * time.Second)
+		ch <- "Таск завершён"
+	}()
+
+	select {
+	case res := <-ch:
+		fmt.Printf("Таск канала:%s\n", res)
+	case <-time.After(1 * time.Second):
+		fmt.Println("Таск вышел из времени")
 	}
 }
 
