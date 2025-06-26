@@ -37,6 +37,24 @@ func main() {
 	case <-time.After(1 * time.Second):
 		fmt.Println("Таск вышел из времени")
 	}
+
+	// Пример 3
+	ctx2, cancel2 := context.WithCancel(context.Background())
+	defer cancel2()
+
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		fmt.Println("Отмена контекста")
+		cancel2()
+	}()
+
+	select {
+	case <-time.After(2 * time.Second):
+		fmt.Println("Отмена по времени")
+	case <-ctx2.Done():
+		fmt.Printf("Контекст отменен: %v\n", ctx2.Err())
+	}
+	fmt.Println("Программа завершена")
 }
 
 func longRunningTask(ctx context.Context, result chan<- string) {
